@@ -14,7 +14,7 @@ if __name__ == "__main__":
             print(f"[+] Crawling page: {page}")
             total_pages = asyncio.run(
                 Crawler(database=test_db).crawl_movies_or_shows_by_page(
-                    page=page, type=CONFIG.TYPE_TV_SHOWS
+                    page=page, movie_type=CONFIG.TYPE_TV_SHOWS
                 )
             )
 
