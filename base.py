@@ -135,7 +135,7 @@ class Crawler:
             )
             if inserted_movie_id and movie_type == CONFIG.TYPE_TV_SHOWS:
                 seasons = movie.get("seasons", [])
-                for season in seasons[:2]:
+                for season in seasons:
                     season_number = season.get("season_number", 0)
                     await self.crawl_show_season(
                         inserted_movie_id=inserted_movie_id,
