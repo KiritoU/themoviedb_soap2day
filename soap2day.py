@@ -230,7 +230,7 @@ class Soap2day:
                 "count_fav": 0,
                 "player_fake": 1,
                 "movieOn": movie_data.get("movie_on", "Other"),
-                "movieTag": "",
+                "movieTag": json.dumps(movie_data.get("keywords", [])),
                 "time": timeupdate.strftime("%Y-%m-%d %H:%M:%S"),
                 "creater": timeupdate.strftime("%Y-%m-%d"),
             }

@@ -64,6 +64,23 @@ class Crawler:
 
         return casts_name, productions_name
 
+    async def get_movie_or_show_keywords(self, movie: dict, movie_type: str) -> list:
+        if movie_type == CONFIG.TYPE_MOVIE:
+            credits = await route.Movie().keywords(movie.get("id"))
+        else:
+            credits = await route.Show().keywords(movie.get("id"))
+        if not isinstance(credits, dict):
+            return "", ""
+
+        sleep(CONFIG.WAIT_BETWEEN_TMDB_REQUEST)
+
+        results = credits.get("results", [])
+        results_name = [
+            result.get("name", "") for result in results if isinstance(result, dict)
+        ]
+
+        return results_name
+
     async def crawl_show_season(
         self,
         inserted_movie_id: int,
@@ -119,8 +136,12 @@ class Crawler:
             casts, directors = await self.get_cast_and_production_from_movie_or_show(
                 movie=movie, movie_type=movie_type
             )
+            keywords = await self.get_movie_or_show_keywords(
+                movie=movie, movie_type=movie_type
+            )
             movie["casts"] = casts
             movie["directors"] = directors
+            movie["keywords"] = keywords
             movie["movie_on"] = movie_on
             movie["trailer_id"] = await self.get_trailer_from_movie_or_show(
                 movie=movie, movie_type=movie_type
