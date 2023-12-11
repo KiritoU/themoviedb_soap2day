@@ -220,6 +220,7 @@ class Soap2day:
                 "public": 1,
                 "slug": slugify(
                     str(movie_data.get("id", ""))
+                    + "-"
                     + movie_data.get(
                         "original_title",
                         movie_data.get(
