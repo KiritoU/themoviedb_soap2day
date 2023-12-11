@@ -129,7 +129,9 @@ class Crawler:
                 # TODO: Noti
                 return
 
-            print(f'[+] Crawling {movie_type} name: {movie.get("original_name", "")}')
+            print(
+                f'[+] Crawling {movie_type} name: {movie.get("original_name", movie.get("original_title", ""))}'
+            )
 
             sleep(CONFIG.WAIT_BETWEEN_TMDB_REQUEST)
 
