@@ -219,7 +219,8 @@ class Soap2day:
                 "onSlider": 0,
                 "public": 1,
                 "slug": slugify(
-                    movie_data.get(
+                    str(movie_data.get("id", ""))
+                    + movie_data.get(
                         "original_title",
                         movie_data.get(
                             "original_name",
