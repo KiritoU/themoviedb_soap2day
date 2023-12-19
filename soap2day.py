@@ -230,7 +230,7 @@ class Soap2day:
                     )
                 ),
                 "count_fav": 0,
-                "player_fake": 1,
+                "player_fake": CONFIG.FAKE_PLAYER,
                 "movieOn": movie_data.get("movie_on", "Other"),
                 "movieTag": json.dumps(movie_data.get("keywords", [])),
                 "time": timeupdate.strftime("%Y-%m-%d %H:%M:%S"),
@@ -431,7 +431,12 @@ class Soap2day:
             return 0
 
     def get_or_insert_episode(
-        self, movie_id: int, season_id: int, episode: dict, thumb_url: str
+        self,
+        movie_id: int,
+        season_id: int,
+        episode: dict,
+        thumb_url: str,
+        episode_data: list = [],
     ) -> None:
         if not isinstance(episode, dict):
             return
@@ -450,7 +455,7 @@ class Soap2day:
             season_id,
             thumb_url,
             episode.get("name", ""),
-            "[]",
+            json.dumps(episode_data),
         )
 
         self._database.select_or_insert(table="episode", condition=condition, data=data)

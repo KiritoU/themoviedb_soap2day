@@ -50,14 +50,14 @@ class Crawler:
         casts = credits.get("cast", [])
         casts_name = [
             cast.get("name", cast.get("original_name", ""))
-            for cast in casts
+            for cast in casts[: CONFIG.MAX_CASTS_LENGTH]
             if isinstance(cast, dict)
         ]
 
         crews = credits.get("crew", [])
         productions_name = [
             crew.get("name", crew.get("original_name", ""))
-            for crew in crews
+            for crew in crews[: CONFIG.MAX_CASTS_LENGTH]
             if isinstance(crew, dict)
             and crew.get("known_for_department", "") == "Production"
         ]
@@ -107,6 +107,9 @@ class Crawler:
             season_name=season.get("name", ""),
         )
 
+        if not inserted_season_id:
+            return
+
         episodes = season.get("episodes", [])
         for episode in episodes:
             self._soap2day.get_or_insert_episode(
@@ -114,6 +117,13 @@ class Crawler:
                 season_id=inserted_season_id,
                 episode=episode,
                 thumb_url=movie_cover_url,
+                episode_data=[
+                    {
+                        "server_name": "VidSrc",
+                        "server_link": f"https://vidsrc.to/embed/tv/{show_id}/{season_number}/{episode.get('episode_number', 0)}",
+                        "server_type": "embed",
+                    }
+                ],
             )
 
     async def crawl_movie_by_id(
@@ -150,22 +160,39 @@ class Crawler:
             )
             # with open("test/movie.json", "w") as f:
             #     f.write(json.dumps(movie, indent=4))
+            # sys.exit(0)
 
             movie_cover_url = f"{CONFIG.TMDB_IMAGE_PREFIX}{movie.get('backdrop_path', movie.get('poster_path', ''))}"
 
             inserted_movie_id = self._soap2day.insert_movie(
                 movie_data=movie, movie_type=movie_type
             )
-            if inserted_movie_id and movie_type == CONFIG.TYPE_TV_SHOWS:
-                seasons = movie.get("seasons", [])
-                for season in seasons:
-                    season_number = season.get("season_number", 0)
-                    await self.crawl_show_season(
-                        inserted_movie_id=inserted_movie_id,
-                        show_id=movie_id,
-                        season_number=season_number,
-                        movie_cover_url=movie_cover_url,
+            if inserted_movie_id:
+                if movie_type == CONFIG.TYPE_TV_SHOWS:
+                    seasons = movie.get("seasons", [])
+                    for season in seasons:
+                        season_number = season.get("season_number", 0)
+                        await self.crawl_show_season(
+                            inserted_movie_id=inserted_movie_id,
+                            show_id=movie_id,
+                            season_number=season_number,
+                            movie_cover_url=movie_cover_url,
+                        )
+                else:
+                    self._soap2day.get_or_insert_episode(
+                        movie_id=inserted_movie_id,
+                        season_id=0,
+                        episode={"episode_number": 1},
+                        thumb_url=movie_cover_url,
+                        episode_data=[
+                            {
+                                "server_name": "VidSrc",
+                                "server_link": f"https://vidsrc.to/embed/movie/{movie_id}",
+                                "server_type": "embed",
+                            }
+                        ],
                     )
+                    pass
 
         except Exception as e:
             print(e)
