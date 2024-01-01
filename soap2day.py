@@ -203,7 +203,8 @@ class Soap2day:
                 "view_week": 0,
                 "view_month": 0,
                 "quality": CONFIG.DEFAULT_QUALITY,
-                "duration": self.get_duration_from_movie(movie=movie_data),
+                "duration": str(self.get_duration_from_movie(movie=movie_data))
+                + " min",
                 "trailerEmbed": ""
                 if not movie_data.get("trailer_id", "")
                 else f'https://www.youtube.com/watch?v={movie_data.get("trailer_id", "")}',
